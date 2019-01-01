@@ -29,7 +29,7 @@ def convert(string, dom):
     # accumulate all the charge from all tiem bins
     # the format is string, dom, timebin, charge
     #               b[0],   b[1],b[2],    b[3]
-    # TODO: Include cuts in time
+    # TODO: Include cuts in time and charge
     hits = np.zeros(shape=(5160,))
     bins = np.loadtxt(fname)
     for b in bins:

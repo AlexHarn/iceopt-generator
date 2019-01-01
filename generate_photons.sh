@@ -3,7 +3,7 @@
 PPC=/data/user/aharnisch/modded-PPC/no_abs/ice/ppc
 photon_dir=/data/user/aharnisch/iceopt_photons
 data_dir=/data/user/aharnisch/flasher_data_charge_only
-log_file=/data/user/aharnisch/generate_photons/logs/done
+generator_dir=/data/user/aharnisch/iceopt-generator
 
 # load python
 eval $(/cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/setup.sh)
@@ -16,12 +16,13 @@ n_hits=700000
 (( dom = $1%60+1))
 (( string = $1/60+1))
 cd "$(dirname $PPC)"
-$PPC $string $dom $n_photons > $string\_$dom.photons
-while [ $(cat $string\_$dom.photons | wc -l) -lt $n_hits ]
+$PPC $string $dom $n_photons > $photon_dir/$string\_$dom.photons
+python $generator_dir/exclude_doms.py $1
+while [ $(cat $photon_dir/$string\_$dom.photons | wc -l) -lt $n_hits ]
 do
-    echo Total hits so far: $(cat $string\_$dom.photons | wc -l)
-    $PPC $string $dom $n_photons >> $string\_$dom.photons
+    echo Total hits so far: $(cat $photon_dir/$string\_$dom.photons | wc -l)
+    $PPC $string $dom $n_photons >> $photon_dir/$string\_$dom.photons
+    python $generator_dir/exclude_doms.py $1
 done
-sed -i $((n_hits + 1))',$ d' $string\_$dom.photons
-mv $string\_$dom.photons $photon_dir/$string\_$dom.photons
-echo $1 >> $log_file
+sed -i $((n_hits + 1))',$ d' $photon_dir/$string\_$dom.photons
+echo $1 >> $generator_dir/logs/done
