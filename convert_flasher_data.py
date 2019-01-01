@@ -5,6 +5,9 @@ import multiprocessing
 
 flasher_dir = '/data/user/dima/I3/flashers/oux/'
 data_dir = '/data/user/aharnisch/flasher_data_charge_only/'
+# values for charge cut
+q_min = .1
+q_sat = 500.
 
 
 def convert(string, dom):
@@ -29,12 +32,17 @@ def convert(string, dom):
     # accumulate all the charge from all tiem bins
     # the format is string, dom, timebin, charge
     #               b[0],   b[1],b[2],    b[3]
-    # TODO: Include cuts in time and charge
+    # TODO: Include cuts in time
     hits = np.zeros(shape=(5160,))
     bins = np.loadtxt(fname)
     for b in bins:
         hits[60*(int(b[0]) - 1) + int(b[1]) - 1] += b[3]
 
+    # apply charge cuts
+    hits = np.where(hits > q_min, hits, np.zeros_like(hits))
+    hits = np.where(hits < q_sat, hits, np.zeros_like(hits))
+
+    # save to file
     np.savetxt(data_dir + '{}_{}.hits'.format(string, dom), hits)
 
 
