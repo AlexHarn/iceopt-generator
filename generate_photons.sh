@@ -2,6 +2,7 @@
 
 PPC=/data/user/aharnisch/modded-PPC/no_abs/ice/ppc
 photon_dir=/data/user/aharnisch/iceopt_photons
+data_dir=/data/user/aharnisch/flasher_data_charge_only
 log_file=/data/user/aharnisch/generate_photons/logs/done
 
 # load python
