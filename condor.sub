@@ -6,11 +6,11 @@ Output                  = logs/outfile.0$(Process)
 Error                   = logs/errors.0.$(Process)
 Notification            = never
 Universe                = vanilla
-Arguments               = $(Process)
+Arguments               = $(Process) 2100
 
 request_cpus = 1
 request_memory = 6GB
 request_gpus = 1 
 requirements = regexp("rad", Machine) != True && (Machine != "gtx-2")
 
-queue 1
+queue 60
