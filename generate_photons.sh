@@ -14,7 +14,7 @@ generator_dir=/data/user/aharnisch/iceopt-generator
 eval $(/cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/setup.sh)
 
 # the number of photons to emmit in the simulation
-n_photons=20000000
+n_photons=10000000
 # the number of desired hits in the final output file
 n_hits=700000
 

@@ -14,6 +14,7 @@ def main(dom_id):
     dom_id = int(dom_id)
     dom = dom_id % 60 + 1
     string = dom_id//60 + 1
+    print("Working on {}_{}.".format(string, dom))
 
     # load data hits and get list of all DOMs without charge
     print("Getting excluded DOMs from data...")
