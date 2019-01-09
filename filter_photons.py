@@ -51,7 +51,7 @@ def main(dom_id):
     photons = df.values
     # init mask
     mask = photons[:, 0] == -1
-    for dom in trange(5160):
+    for dom in trange(5160, leave=False):
         dom_mask = photons[:, 0] == dom
         if dom in excluded:
             mask = np.logical_or(mask, dom_mask)
