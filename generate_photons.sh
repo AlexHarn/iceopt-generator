@@ -22,12 +22,12 @@ n_hits=700000
 (( string = $dom_id/60+1))
 cd "$(dirname $PPC)"
 $PPC $string $dom $n_photons > $photon_dir/$string\_$dom.photons
-python $generator_dir/exclude_doms.py $dom_id
+python $generator_dir/filter_photons.py $dom_id
 while [ $(cat $photon_dir/$string\_$dom.photons | wc -l) -lt $n_hits ]
 do
     echo Total hits so far: $(cat $photon_dir/$string\_$dom.photons | wc -l)
     $PPC $string $dom $n_photons >> $photon_dir/$string\_$dom.photons
-    python $generator_dir/exclude_doms.py $dom_id
+    python $generator_dir/filter_photons.py $dom_id
 done
 sed -i $((n_hits + 1))',$ d' $photon_dir/$string\_$dom.photons
 echo $dom_id >> $generator_dir/logs/done

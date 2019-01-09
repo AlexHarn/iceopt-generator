@@ -2,10 +2,16 @@ import click
 import os
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
+from tqdm import trange
+from find_peaks import find_peaks
 
-data_dir = '/data/user/aharnisch/flasher_data_charge_only/'
-photon_dir = '/data/user/aharnisch/iceopt_photons/'
+raw_data_dir = '/data/user/dima/I3/flashers/oux/'
+data_dir = '/data/user/aharnisch/flasher_data/all_cuts/'
+photon_dir = '/data/user/aharnisch/iceopt_photons/all_cuts/'
+
+# delta t from peak for time cuts in ns
+dt_min = 500.
+dt_max = 1000.
 
 
 @click.command()
@@ -26,20 +32,35 @@ def main(dom_id):
     if len(excluded) == 0:
         return
 
+    # load peaks to filter time
+    fname = raw_data_dir + 'oux.{}_{}'.format(string, dom)
+    if not os.path.isfile(fname):
+        print("No data found for {}_{}!".format(string, dom))
+        return
+    peaks = find_peaks(np.loadtxt(fname))
+
     # load photons and remove all photons that hit a dom without charge on data
+    # and all photons that are outside of the time cut window
     fname = photon_dir + '{}_{}.photons'.format(string, dom)
     if not os.path.isfile(fname):
         raise IOError("Photons file does not exist yet!")
 
     print("Loading photons...")
     df = pd.read_csv(fname, header=None).fillna(0.)
-    print("Excluding DOMs...")
+    print("Filtering photons...")
     photons = df.values
-    mask = photons[:, 0] == excluded[0]
-    if len(excluded) > 1:
-        for dom in tqdm(excluded[1:], leave=False):
-            mask = np.logical_or(mask, photons[:, 0] == dom)
+    # init mask
+    mask = photons[:, 0] == -1
+    for dom in trange(5160):
+        dom_mask = photons[:, 0] == dom
+        if dom in excluded:
+            mask = np.logical_or(mask, dom_mask)
+        else:
+            t_mask = np.logical_or(photons[:, 1] < peaks[dom] - dt_min,
+                                   photons[:, 1] > peaks[dom] + dt_max)
+            mask = np.logical_or(mask, np.logical_and(dom_mask, t_mask))
     photons = photons[~mask]
+
     print("Done. {} photons left.".format(len(photons)))
     print("Writing to file...")
     savetxt_sparse_compact(fname, photons)

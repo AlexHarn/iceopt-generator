@@ -2,12 +2,16 @@ import os
 import numpy as np
 from tqdm import trange
 import multiprocessing
+from find_peaks import find_peaks
 
 flasher_dir = '/data/user/dima/I3/flashers/oux/'
-data_dir = '/data/user/aharnisch/flasher_data_charge_only/'
-# values for charge cut
+data_dir = '/data/user/aharnisch/flasher_data/all_cuts/'
+# values for charge cut in PE
 q_min = .1
 q_sat = 500.
+# delta t from peak for time cuts in ns
+dt_min = 500.
+dt_max = 1000.
 
 
 def convert(string, dom):
@@ -24,19 +28,24 @@ def convert(string, dom):
         The id of the emitter DOM on the given string. Integer between 1 and
         60.
     """
-    # load the flasher histogram if we hav edata for that emitter
+    # load the flasher histogram if we have edata for that emitter
     fname = flasher_dir + 'oux.{}_{}'.format(string, dom)
     if not os.path.isfile(fname):
+        print("No data found for {}_{}!".format(string, dom))
         return
 
-    # accumulate all the charge from all tiem bins
+    # accumulate all the charge from all time bins
     # the format is string, dom, timebin, charge
     #               b[0],   b[1],b[2],    b[3]
-    # TODO: Include cuts in time
     hits = np.zeros(shape=(5160,))
     bins = np.loadtxt(fname)
+
+    # find the peaks
+    peaks = find_peaks(bins)
     for b in bins:
-        hits[60*(int(b[0]) - 1) + int(b[1]) - 1] += b[3]
+        dom_id = 60*(int(b[0]) - 1) + int(b[1]) - 1
+        if b[2] < peaks[dom_id] + dt_max and b[2] > peaks[dom_id] - dt_min:
+            hits[dom_id] += b[3]
 
     # apply charge cuts
     hits = np.where(hits > q_min, hits, np.zeros_like(hits))
