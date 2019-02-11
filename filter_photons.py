@@ -2,12 +2,13 @@ import click
 import os
 import numpy as np
 import pandas as pd
+import settings
 from tqdm import trange
 from find_peaks import find_peaks
 
-raw_data_dir = '/data/user/dima/I3/flashers/oux/'
-data_dir = '/data/user/aharnisch/flasher_data/all_cuts/'
-photon_dir = '/data/user/aharnisch/iceopt_photons/all_cuts/'
+raw_data_dir = settings.RAW_DATA_DIR
+data_dir = settings.DATA_DIR
+photon_dir = settings.PHOTON_DIR
 
 # delta t from peak for time cuts in ns
 dt_min = 500.
@@ -36,8 +37,11 @@ def main(dom_id):
     fname = raw_data_dir + 'oux.{}_{}'.format(string, dom)
     if not os.path.isfile(fname):
         print("No data found for {}_{}!".format(string, dom))
-        return
-    peaks = find_peaks(np.loadtxt(fname))
+        if settings.EXCLUDE_DOMS:
+            return
+    else:
+        if settings.T_CUTS:
+            peaks = find_peaks(np.loadtxt(fname))
 
     # load photons and remove all photons that hit a dom without charge on data
     # and all photons that are outside of the time cut window
@@ -54,11 +58,13 @@ def main(dom_id):
     for dom in trange(5160, leave=False):
         dom_mask = photons[:, 0] == dom
         if dom in excluded:
-            mask = np.logical_or(mask, dom_mask)
+            if settings.EXCLUDE_DOMS:
+                mask = np.logical_or(mask, dom_mask)
         else:
-            t_mask = np.logical_or(photons[:, 1] < peaks[dom] - dt_min,
-                                   photons[:, 1] > peaks[dom] + dt_max)
-            mask = np.logical_or(mask, np.logical_and(dom_mask, t_mask))
+            if settings.T_CUTS:
+                t_mask = np.logical_or(photons[:, 1] < peaks[dom] - dt_min,
+                                       photons[:, 1] > peaks[dom] + dt_max)
+                mask = np.logical_or(mask, np.logical_and(dom_mask, t_mask))
     photons = photons[~mask]
 
     print("Done. {} photons left.".format(len(photons)))

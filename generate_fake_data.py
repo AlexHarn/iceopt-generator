@@ -3,18 +3,14 @@ import os
 import numpy as np
 import pandas as pd
 import subprocess
+import settings
 from tqdm import tqdm
 from find_peaks import find_peaks
 
-raw_data_dir = '/data/user/dima/I3/flashers/oux/'
-data_dir = '/data/user/aharnisch/flasher_data/all_cuts/'
-
-fake_data_dir = '/data/user/aharnisch/fake_flasher_data/spice_3.2.2/all_cuts/'
-path_to_ppc = '/data/user/aharnisch/modded-PPC/real/ice/ppc'
-
-# delta t from peak for time cuts in ns
-dt_min = 500.
-dt_max = 1000.
+raw_data_dir = settings.RAW_DATA_DIR
+data_dir = settings.DATA_DIR
+fake_data_dir = settings.FAKE_DATA_DIR
+path_to_ppc = settings.PPC_DIR + 'ppc'
 
 
 @click.command()
@@ -34,37 +30,47 @@ def main(dom_id):
     fname = data_dir + '{}_{}.hits'.format(flasher_string, flasher_dom)
     if not os.path.isfile(fname):
         print("No data found for {}_{}!".format(flasher_string, flasher_dom))
-        return
-    data_hits = np.loadtxt(fname)
-    excluded = np.where(data_hits == 0)[0]
-    total_hits = np.sum(data_hits)
+        if settings.EXCLUDE_DOMS:
+            return
+    else:
+        data_hits = np.loadtxt(fname)
+        excluded = np.where(data_hits == 0)[0]
+        total_hits = np.sum(data_hits)
+    if not settings.EXCLUDE_DOMS:
+        # always False
+        excluded = np.where(hits == 1)[0]
 
     # load peaks to filter time
     fname = raw_data_dir + 'oux.{}_{}'.format(flasher_string, flasher_dom)
     if not os.path.isfile(fname):
         print("No data found for {}_{}!".format(flasher_string, flasher_dom))
         return
-    peaks = find_peaks(np.loadtxt(fname))
+    if settings.T_CUTS:
+        peaks = find_peaks(np.loadtxt(fname))
 
-    # accumulate hits until we match total data hits after cuts
-    while np.sum(hits) < total_hits:
-        photons = simulate_flash(flasher_string, flasher_dom)
-        doms = np.setdiff1d(np.arange(5160), excluded, assume_unique=True)
-        for dom in tqdm(doms):
-            dom_mask = photons[:, 0] == dom
-            t_mask = np.logical_or(photons[:, 1] > peaks[dom] - dt_min,
-                                   photons[:, 1] < peaks[dom] + dt_max)
+    photons = simulate_flash(flasher_string, flasher_dom)
+    doms = np.setdiff1d(np.arange(5160), excluded, assume_unique=True)
+    for dom in tqdm(doms):
+        dom_mask = photons[:, 0] == dom
+        if settings.T_CUTS:
+            t_mask = np.logical_or(photons[:, 1] > peaks[dom] -
+                                   settings.DT_MIN,
+                                   photons[:, 1] < peaks[dom] +
+                                   settings.DT_MAX)
             mask = np.logical_and(dom_mask, t_mask)
-            # accumulate the hits
-            hits[dom] += mask.sum()
-        print("{}/{} hits".format(np.sum(hits), total_hits))
+        else:
+            mask = dom_mask
+        # accumulate the hits
+        hits[dom] += mask.sum()
 
     # rescale to exact total hits
-    hits *= total_hits/np.sum(hits)
+    if settings.RESCALE_FAKE_DATA:
+        hits *= total_hits/np.sum(hits)
 
     # write to file
     fname = np.savetxt(fake_data_dir + '{}_{}.hits'.format(flasher_string,
-                                                           flasher_dom), hits)
+                                                           flasher_dom),
+                       hits.astype(np.int32), fmt='%d')
     print("Done.")
 
 

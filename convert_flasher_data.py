@@ -1,17 +1,13 @@
 import os
 import numpy as np
-from tqdm import trange
 import multiprocessing
+import settings
+from tqdm import trange
 from find_peaks import find_peaks
+from log_version import log_version
 
-flasher_dir = '/data/user/dima/I3/flashers/oux/'
-data_dir = '/data/user/aharnisch/flasher_data/all_cuts/'
-# values for charge cut in PE
-q_min = .1
-q_sat = 500.
-# delta t from peak for time cuts in ns
-dt_min = 500.
-dt_max = 1000.
+flasher_dir = settings.RAW_DATA_DIR
+data_dir = settings.DATA_DIR
 
 
 def convert(string, dom):
@@ -44,12 +40,13 @@ def convert(string, dom):
     peaks = find_peaks(bins)
     for b in bins:
         dom_id = 60*(int(b[0]) - 1) + int(b[1]) - 1
-        if b[2] < peaks[dom_id] + dt_max and b[2] > peaks[dom_id] - dt_min:
+        if b[2] < peaks[dom_id] + settings.DT_MAX and b[2] > peaks[dom_id] - \
+           settings.DT_MIN:
             hits[dom_id] += b[3]
 
     # apply charge cuts
-    hits = np.where(hits > q_min, hits, np.zeros_like(hits))
-    hits = np.where(hits < q_sat, hits, np.zeros_like(hits))
+    hits = np.where(hits > settings.Q_MIN, hits, np.zeros_like(hits))
+    hits = np.where(hits < settings.Q_SAT, hits, np.zeros_like(hits))
 
     # save to file
     np.savetxt(data_dir + '{}_{}.hits'.format(string, dom), hits)
@@ -64,4 +61,5 @@ if __name__ == '__main__':
     print("Waiting for jobs to finish...")
     pool.close()
     pool.join()
+    log_version("real_data")
     print("Done.")

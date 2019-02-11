@@ -6,7 +6,7 @@
 
 # define the paths here
 PPC=/data/user/aharnisch/modded-PPC/no_abs/ice/ppc
-photon_dir=/data/user/aharnisch/iceopt_photons/all_cuts
+photon_dir=/data/user/aharnisch/iceopt_photons/
 data_dir=/data/user/aharnisch/flasher_data_charge_only
 generator_dir=/data/user/aharnisch/iceopt-generator
 
@@ -31,7 +31,7 @@ do
         sed -i $((max_len + 1))',$ d' $photon_dir/$string\_$dom.photons
     fi
     echo Total hits before filtering: $(cat $photon_dir/$string\_$dom.photons | wc -l)
-    python $generator_dir/filter_photons.py $dom_id
+    # python $generator_dir/filter_photons.py $dom_id
     echo Total hits so far: $(cat $photon_dir/$string\_$dom.photons | wc -l)
     [ $(cat $photon_dir/$string\_$dom.photons | wc -l) -lt $n_hits ] || break
 done
@@ -39,4 +39,5 @@ if [ $(cat $photon_dir/$string\_$dom.photons | wc -l) -gt $n_hits ]
 then
     sed -i $((n_hits + 1))',$ d' $photon_dir/$string\_$dom.photons
 fi
+# python $generator_dir/log_version.py photons
 echo $dom_id >> $generator_dir/logs/done
