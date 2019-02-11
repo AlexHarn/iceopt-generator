@@ -6,7 +6,7 @@ Output                  = logs/outfile.0$(Process)
 Error                   = logs/errors.0.$(Process)
 Notification            = never
 Universe                = vanilla
-Arguments               = $(Process) 2100
+Arguments               = $(Process) 4080
 
 request_cpus = 1
 request_memory = 6GB
