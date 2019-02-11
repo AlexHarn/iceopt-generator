@@ -6,8 +6,7 @@
 
 # define the paths here
 PPC=/data/user/aharnisch/modded-PPC/no_abs/ice/ppc
-photon_dir=/data/user/aharnisch/iceopt_photons/
-data_dir=/data/user/aharnisch/flasher_data_charge_only
+photon_dir=/data/user/aharnisch/iceopt_photons
 generator_dir=/data/user/aharnisch/iceopt-generator
 
 # load python
