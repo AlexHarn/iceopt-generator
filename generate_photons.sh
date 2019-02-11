@@ -38,5 +38,5 @@ if [ $(cat $photon_dir/$string\_$dom.photons | wc -l) -gt $n_hits ]
 then
     sed -i $((n_hits + 1))',$ d' $photon_dir/$string\_$dom.photons
 fi
-# python $generator_dir/log_version.py photons
+python $generator_dir/log_version.py photons
 echo $dom_id >> $generator_dir/logs/done
