@@ -1,6 +1,6 @@
 #!/bin/bash
 
-photon_dir=/data/user/aharnisch/iceopt_photons/all_cuts
+photon_dir=/data/user/aharnisch/iceopt_photons
 
 string=$1
 for dom in {1..60}
