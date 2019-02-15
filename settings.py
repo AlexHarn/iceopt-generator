@@ -2,7 +2,8 @@
 RAW_DATA_DIR = '/data/user/dima/I3/flashers/oux/'
 DATA_DIR = '/data/user/aharnisch/flasher_data_charge_only/'
 PHOTON_DIR = '/data/user/aharnisch/iceopt_photons/'
-FAKE_DATA_DIR = '/data/user/aharnisch/fake_flasher_data/spice_3.2.2/'
+FAKE_DATA_DIR = \
+    '/data/user/aharnisch/fake_flasher_data/spice_3.2.2_no_anisotropy/'
 PPC_DIR = '/data/user/aharnisch/modded-PPC/real/ice/'
 
 # ----------------------------------- Cuts ------------------------------------
