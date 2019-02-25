@@ -61,5 +61,5 @@ if __name__ == '__main__':
     print("Waiting for jobs to finish...")
     pool.close()
     pool.join()
-    log_version("real_data")
+    log_version(settings.DATA_DIR)
     print("Done.")
