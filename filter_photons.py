@@ -6,14 +6,6 @@ import settings
 from tqdm import trange
 from find_peaks import find_peaks
 
-raw_data_dir = settings.RAW_DATA_DIR
-data_dir = settings.DATA_DIR
-photon_dir = settings.PHOTON_DIR
-
-# delta t from peak for time cuts in ns
-dt_min = 500.
-dt_max = 1000.
-
 
 @click.command()
 @click.argument('dom_id')
@@ -25,7 +17,7 @@ def main(dom_id):
 
     # load data hits and get list of all DOMs without charge
     print("Getting excluded DOMs from data...")
-    fname = data_dir + '{}_{}.hits'.format(string, dom)
+    fname = settings.DATA_DIR + '{}_{}.hits'.format(string, dom)
     if not os.path.isfile(fname):
         return
     hits = np.loadtxt(fname)
@@ -34,7 +26,7 @@ def main(dom_id):
         return
 
     # load peaks to filter time
-    fname = raw_data_dir + 'oux.{}_{}'.format(string, dom)
+    fname = settings.RAW_DATA_DIR + 'oux.{}_{}'.format(string, dom)
     if not os.path.isfile(fname):
         print("No data found for {}_{}!".format(string, dom))
         if settings.EXCLUDE_DOMS:
@@ -45,7 +37,7 @@ def main(dom_id):
 
     # load photons and remove all photons that hit a dom without charge on data
     # and all photons that are outside of the time cut window
-    fname = photon_dir + '{}_{}.photons'.format(string, dom)
+    fname = settings.PHOTON_DIR + '{}_{}.photons'.format(string, dom)
     if not os.path.isfile(fname):
         raise IOError("Photons file does not exist yet!")
 
@@ -53,7 +45,7 @@ def main(dom_id):
     df = pd.read_csv(fname, header=None).fillna(0.)
     print("Filtering photons...")
     photons = df.values
-    # init mask
+    # init mask with False entries
     mask = photons[:, 0] == -1
     for dom in trange(5160, leave=False):
         dom_mask = photons[:, 0] == dom
@@ -62,8 +54,10 @@ def main(dom_id):
                 mask = np.logical_or(mask, dom_mask)
         else:
             if settings.T_CUTS:
-                t_mask = np.logical_or(photons[:, 1] < peaks[dom] - dt_min,
-                                       photons[:, 1] > peaks[dom] + dt_max)
+                t_mask = np.logical_or(photons[:, 1] < peaks[dom] -
+                                       settings.DT_MIN,
+                                       photons[:, 1] > peaks[dom] +
+                                       settings.DT_MAX)
                 mask = np.logical_or(mask, np.logical_and(dom_mask, t_mask))
     photons = photons[~mask]
 

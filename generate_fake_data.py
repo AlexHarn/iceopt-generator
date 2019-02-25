@@ -53,10 +53,10 @@ def main(dom_id):
     for dom in tqdm(doms):
         dom_mask = photons[:, 0] == dom
         if settings.T_CUTS:
-            t_mask = np.logical_or(photons[:, 1] > peaks[dom] -
-                                   settings.DT_MIN,
-                                   photons[:, 1] < peaks[dom] +
-                                   settings.DT_MAX)
+            t_mask = np.logical_and(photons[:, 1] > peaks[dom] -
+                                    settings.DT_MIN,
+                                    photons[:, 1] < peaks[dom] +
+                                    settings.DT_MAX)
             mask = np.logical_and(dom_mask, t_mask)
         else:
             mask = dom_mask
@@ -70,7 +70,7 @@ def main(dom_id):
     # write to file
     fname = np.savetxt(fake_data_dir + '{}_{}.hits'.format(flasher_string,
                                                            flasher_dom),
-                       hits.astype(np.int32), fmt='%d')
+                       hits)
     print("Done.")
 
 

@@ -2,8 +2,8 @@
 
 Executable              = generate_photons.sh
 Log                     = logs/generate_photons.log
-Output                  = logs/outfile.0$(Process)
-Error                   = logs/errors.0.$(Process)
+Output                  = logs/outfile.photons.$(Process)
+Error                   = logs/errors.photons.$(Process)
 Notification            = never
 Universe                = vanilla
 Arguments               = $(Process) 2100

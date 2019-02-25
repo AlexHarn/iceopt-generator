@@ -1,0 +1,16 @@
+# Unix submit description file
+
+Executable              = generate_photons.sh
+Log                     = logs/generate_photons.log
+Output                  = logs/outfile.fake_data.$(Process)
+Error                   = logs/errors.fake_data.$(Process)
+Notification            = never
+Universe                = vanilla
+Arguments               = $(Process) 2100
+
+request_cpus = 1
+request_memory = 6GB
+request_gpus = 1 
+requirements = regexp("rad", Machine) != True && (Machine != "gtx-2")
+
+queue 60

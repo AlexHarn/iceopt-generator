@@ -30,7 +30,7 @@ do
         sed -i $((max_len + 1))',$ d' $photon_dir/$string\_$dom.photons
     fi
     echo Total hits before filtering: $(cat $photon_dir/$string\_$dom.photons | wc -l)
-    # python $generator_dir/filter_photons.py $dom_id
+    python $generator_dir/filter_photons.py $dom_id
     echo Total hits so far: $(cat $photon_dir/$string\_$dom.photons | wc -l)
     [ $(cat $photon_dir/$string\_$dom.photons | wc -l) -lt $n_hits ] || break
 done
@@ -39,4 +39,4 @@ then
     sed -i $((n_hits + 1))',$ d' $photon_dir/$string\_$dom.photons
 fi
 python $generator_dir/log_version.py photons
-echo $dom_id >> $generator_dir/logs/done
+echo $dom_id >> $generator_dir/logs/done.photons
