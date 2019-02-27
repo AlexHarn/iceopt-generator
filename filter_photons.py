@@ -9,7 +9,8 @@ from find_peaks import find_peaks
 
 @click.command()
 @click.argument('dom_id')
-def main(dom_id):
+@click.option('--check', '-c', is_flag=True)
+def main(dom_id, check):
     dom_id = int(dom_id)
     dom = dom_id % 60 + 1
     string = dom_id//60 + 1
@@ -62,9 +63,10 @@ def main(dom_id):
     photons = photons[~mask]
 
     print("Done. {} photons left.".format(len(photons)))
-    print("Writing to file...")
-    savetxt_sparse_compact(fname, photons)
-    print("Done.")
+    if not check:
+        print("Writing to file...")
+        savetxt_sparse_compact(fname, photons)
+        print("Done.")
 
 
 def savetxt_sparse_compact(fname, x, fmt="%g", delimiter=','):
